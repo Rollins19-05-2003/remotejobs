@@ -1,101 +1,188 @@
-import Image from "next/image";
+'use client';
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ imports ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+import { Job } from '../types/job';
+import Card from "../components/Card";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+import { useMemo, useState, useEffect } from 'react';
+import CardSkeleton from "../components/CardSkeleton";
+import { useInView } from 'react-intersection-observer';
+import AdvancedSearch from "../components/AdvancedSearch";
+import { useInfiniteJobs } from '../hooks/useInfiniteJobs';
+import { getUserLocation } from '../utils/userLocation';
+
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const { ref, inView } = useInView({ threshold: 0.1 });
+  const [visibleCards, setVisibleCards] = useState(12);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [locationQuery, setLocationQuery] = useState('');
+  const [userCountry, setUserCountry] = useState('');
+  const [showBookmarkedOnly, setShowBookmarkedOnly] = useState(false);
+  const [showNoJobsMessage, setShowNoJobsMessage] = useState(false);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+  } = useInfiniteJobs({ 
+    query: searchQuery, 
+    location: locationQuery 
+  });
+
+  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Flattening the jobs ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  const allJobs = useMemo(() => {
+    return data?.pages.flatMap((page) => page.jobs) || [];
+  }, [data?.pages]);
+  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Fetching user location ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  useEffect(() => {
+    const fetchUserLocation = async () => {
+      const country = await getUserLocation();
+      setUserCountry(country);
+    };
+  
+  fetchUserLocation();
+}, []);
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Sorting based on location and salary ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+const sortedJobs = useMemo(() => {
+  if (!allJobs.length) return [];
+  
+  return [...allJobs].sort((a, b) => {
+    const aLocation = a.location ? a.location.toLowerCase() : '';
+    const bLocation = b.location ? b.location.toLowerCase() : '';
+    const aSalary = getMaxSalary(a.salary);
+    const bSalary = getMaxSalary(b.salary);
+    
+    // Only apply location-based sorting if user's country is available
+    if (userCountry) {
+      const aIsLocal = aLocation.includes(userCountry.toLowerCase());
+      const bIsLocal = bLocation.includes(userCountry.toLowerCase());
+      
+      if (aIsLocal !== bIsLocal) {
+        return aIsLocal ? -1 : 1;
+      }
+    }
+    
+    // If no user country or locations are the same, sort by salary in descending order
+    return bSalary - aSalary;
+  });
+}, [allJobs, userCountry]);
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Loading more jobs ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  useEffect(() => {
+    if (inView && sortedJobs.length > visibleCards && !isLoadingMore) {
+      setIsLoadingMore(true);
+      setTimeout(() => {
+        setVisibleCards(prev => prev + 12);
+        setIsLoadingMore(false);
+      }, 1000);
+    }
+  }, [inView, sortedJobs.length, visibleCards, isLoadingMore]);
+
+  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Displaying the jobs ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  const visibleJobs = sortedJobs.slice(0, visibleCards);
+
+  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Filtering jobs based on bookmarks ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  const getFilteredJobs = useMemo(() => {
+    if (!showBookmarkedOnly) return visibleJobs;
+    
+    const bookmarkedJobs = JSON.parse(localStorage.getItem('bookmarkedJobs') || '[]');
+    const bookmarkedIds = new Set(bookmarkedJobs.map((job: Job) => job.id));
+    
+    return visibleJobs.filter((job: Job) => bookmarkedIds.has(job.id));
+  }, [visibleJobs, showBookmarkedOnly]);
+
+  useEffect(() => {
+    if (getFilteredJobs.length === 0) {
+      const timer = setTimeout(() => setShowNoJobsMessage(true), 300); // 300ms delay
+      return () => clearTimeout(timer);
+    } else {
+      setShowNoJobsMessage(false);
+    }
+  }, [getFilteredJobs]);
+
+  return (
+    <div className="flex flex-col min-h-screen">
+      <Navbar />
+      <main className="flex-1 px-4 md:px-8 lg:px-16 py-8 flex flex-col">
+        <div className="w-full max-w-7xl">
+          <div className="mb-8 flex flex-col w-full">
+            <AdvancedSearch 
+              onSearch={(query, location) => {
+                setSearchQuery(query);
+                setLocationQuery(location);
+              }}
+              />
+              {/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Show only bookmarks jobs ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */}
+            <div className="mt-4 flex gap-2">
+              <input
+                type="checkbox"
+                id="bookmarkFilter"
+                checked={showBookmarkedOnly}
+                onChange={(e) => setShowBookmarkedOnly(e.target.checked)}
+                className="rounded text-[#0ba02c]"
+              />
+              <label htmlFor="bookmarkFilter" className="text-gray-700 font-medium text-sm">
+                Show bookmarked jobs only
+              </label>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6 justify-items-center">
+            {isLoading ? (
+              Array(12).fill(0).map((_, index) => (
+                <CardSkeleton key={index} />
+              ))
+            ) : isError ? (
+              <div className="col-span-full text-center text-red-500">
+                Error: {error?.message}
+              </div>
+            ) : showNoJobsMessage ? (
+              <div className="col-span-full text-center text-gray-500 fade-enter fade-enter-active">
+                {showBookmarkedOnly ? 'No bookmarked jobs found' : 'No jobs found'}
+              </div>
+            ) : (
+              getFilteredJobs.map((job: Job) => (
+                <Card 
+                  key={job.id} 
+                  job={job}
+                  showBookmarkedOnly={showBookmarkedOnly}
+                />
+              ))
+            )}
+          </div>
+
+          <div ref={ref} className="mt-8 text-center">
+            {isLoadingMore ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {Array(3).fill(0).map((_, index) => (
+                  <CardSkeleton key={index} />
+                ))}
+              </div>
+            ) : (
+              <div className="text-gray-500">
+                {sortedJobs.length > visibleCards ? 
+                  'Scroll for more jobs...' : 
+                  'No more jobs to load'}
+              </div>
+            )}
+          </div>
         </div>
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      <Footer />
     </div>
   );
 }
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Helper function ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+const getMaxSalary = (salary: string): number => {
+  // Extract all numbers from the salary string
+  const numbers = salary.match(/\d+/g);
+  if (!numbers) return 0;
+  
+  // Convert all found numbers to integers and get the maximum
+  const salaryNumbers = numbers.map(num => parseInt(num));
+  return Math.max(...salaryNumbers);
+};

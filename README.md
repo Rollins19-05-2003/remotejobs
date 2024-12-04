@@ -1,36 +1,165 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# RemoteJobs - Next Generation Job Listing Platform
 
-## Getting Started
+A modern, responsive job listing platform built with Next.js that transforms legacy HTML job data into an intuitive search experience.
 
-First, run the development server:
+## 🚀 Features
 
+### Core Functionality
+
+#### 1. HTML Parsing & Data Extraction
+- Implemented `cheerio` for robust HTML parsing
+- Custom data extraction logic to handle various HTML structures
+- Error boundary implementation for graceful handling of malformed data
+- Structured data extraction for:
+  - Job titles
+  - Company details
+  - Salary ranges
+  - Locations
+  - Tags/Skills
+
+#### 2. User Interface
+- Pixel-perfect implementation matching Figma designs
+- Responsive layout using Tailwind CSS
+- Mobile-first approach with breakpoint optimization
+- Advanced filtering system with:
+  - Keyword search
+  - Location filter
+  - Salary range filter
+  - Tag-based filtering
+
+#### 3. State Management & Data Fetching
+- Implemented React Query for:
+  - Efficient data fetching
+  - Automatic background refreshes
+  - Optimistic updates
+  - Cache management
+  - Infinite scroll pagination
+  - Loading states handling
+
+#### 4. Search & Filtering
+- Keyword-based matching across:
+  - Job titles
+  - Company names
+  - Descriptions
+  - Tags
+- Location-based filtering with geocoding support
+- Salary range filtering with normalized data
+
+#### 5. Infinite Scroll
+- Implemented using `react-infinite-scroll-component`
+- Seamless pagination with React Query
+- Maintains filter state during scrolling
+- Optimized performance with windowing
+
+### Extended Features
+
+1. **User Feedback**
+   - Toast notifications using `react-hot-toast`
+   - Loading states
+
+2. **Location Detection**
+   - IP-based location detection
+   - Geolocation API integration
+   - Priority sorting for local jobs
+
+3. **Job Bookmarking**
+   - LocalStorage implementation
+   - Persistent bookmarks
+   - Quick access to saved jobs
+
+## 🛠 Technical Stack
+
+### Core Technologies
+- **Next.js**: React framework for production
+- **TypeScript**: Static typing and enhanced developer experience
+- **Tailwind CSS**: Utility-first CSS framework
+
+### UI Components
+- **Shadcn/ui**: Accessible component system
+
+### State Management & Data Fetching
+- **React Query**: Server state management
+- **Axios**: HTTP client
+
+### Utilities
+- **Cheerio**: HTML parsing
+- **date-fns**: Date manipulation
+- **lodash**: Utility functions
+
+## 🚀 Getting Started
+
+### Prerequisites
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Node.js >= 18.0.0
+npm >= 9.0.0
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Installation
+```bash
+# Clone repository
+git clone https://github.com/Rollins19-05-2003/JobListing.git
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+# Install dependencies
+npm install
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# Start development server
+npm run dev
+```
 
-## Learn More
+## 📦 Deployment
 
-To learn more about Next.js, take a look at the following resources:
+The application is deployed on Vercel with the following configuration:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Connect your GitHub repository to Vercel
+2. Deploy with automatic CI/CD
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Live Demo: [https://debjoblisting.vercel.app/](https://debjoblisting.vercel.app/)
 
-## Deploy on Vercel
+## 🏗 Frontend Architecture
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Directory Structure
+```
+src/
+├── app/
+│    ├── api/
+│       ├── location/
+│       └── jobs/
+├── components/
+│    ├── ui/
+├── hooks/
+├── lib/
+├── public/
+├── types/
+└── utils/
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Data Flow
+1. API requests handled by axios
+2. HTML parsing through Cheerio
+3. State management with React Query
+4. Component rendering with proper memoization
+
+## 🔮 Future Improvements
+1. **Performance Optimization**
+   - Implement service workers
+   - Add static generation for common searches
+   - Optimize bundle size
+
+2. **Feature Enhancements**
+   - Advanced search filters
+   - User accounts
+   - Job application tracking
+   - Email notifications
+   - Quick access to saved jobs
+
+3. **Technical Improvements**
+   - Unit test coverage
+   - E2E testing
+   - Accessibility improvements
+   - SEO optimization
+
+4. **UI/UX Enhancements**
+   - Dark mode
+   - Custom theme support
+   - More interactive elements
+   - Enhanced mobile experience

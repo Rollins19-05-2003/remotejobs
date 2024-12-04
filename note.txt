@@ -1,0 +1,22 @@
+## Working of useInfiniteJobs hook for infinite scroll functionality
+return useInfiniteQuery<JobsResponse>({
+    // This function fetches infinite jobs based on the query and location parameters.
+    // It uses the useInfiniteQuery hook from @tanstack/react-query to manage the fetching of jobs.
+    // 
+    // queryKey: This is an array that uniquely identifies the query. It includes the query and location parameters.
+    // queryFn: This is the function that fetches the data. It takes a pageParam and uses it to fetch jobs from the API.
+    // getNextPageParam: This function determines if there is a next page of jobs to fetch. If the last fetched page indicates there are more jobs, it returns the next page number.
+    // initialPageParam: This is the initial page number to start fetching from.
+    // staleTime: This is the time in milliseconds that the data is considered fresh. After this time, the data is considered stale and may be refetched.
+    // 
+    // The staleTime is set to 5000 milliseconds (5 seconds), meaning that if the data is not refetched within 5 seconds, it will be considered stale and may be refetched.
+    // This is useful for scenarios where the data may change frequently and you want to ensure the user sees the latest data without having to manually refresh.
+    queryKey: ['infiniteJobs', query, location],
+    queryFn: ({ pageParam }) => fetchInfiniteJobs({ pageParam: pageParam as number, query, location }),
+    getNextPageParam: (lastPage) => 
+      lastPage.pagination.hasMore ? lastPage.pagination.currentOffset + 1 : undefined,
+    initialPageParam: 1,
+    staleTime: 5000,
+  });
+
+  
