@@ -1,8 +1,8 @@
 import { parseJobsHtml } from '@/utils/htmlParser';
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import axios from 'axios';
 
-export async function GET(request) {
+export async function GET(request: NextRequest) {
   console.log('=== API Route Started ===');
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Fetching query parameters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   const { searchParams } = new URL(request.url);
@@ -45,7 +45,7 @@ export async function GET(request) {
       }
     });
     
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching jobs:', error);
     return NextResponse.json(
       { error: 'Failed to fetch jobs', message: error.message },

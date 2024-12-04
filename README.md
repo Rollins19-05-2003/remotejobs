@@ -97,7 +97,7 @@ npm >= 9.0.0
 ### Installation
 ```bash
 # Clone repository
-git clone https://github.com/Rollins19-05-2003/JobListing.git
+git clone https://github.com/Rollins19-05-2003/remotejobs.git
 
 # Install dependencies
 npm install
