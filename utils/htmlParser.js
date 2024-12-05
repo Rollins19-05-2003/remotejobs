@@ -1,4 +1,6 @@
 const cheerio = require('cheerio');
+const { format, parseISO } = require('date-fns');
+
 export const parseJobsHtml = (htmlContent) => {
   console.log('Parsing HTML content...');
   
@@ -58,7 +60,7 @@ export const parseJobsHtml = (htmlContent) => {
 
       // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Location and salary with emoji cleanup ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
       const locationElements = $job.find('.location');
-      const location = $(locationElements[0]).text().replace('', '').trim();
+      const location = $(locationElements[0]).text().trim();
       const salary = $(locationElements[1]).text().replace('💰', '').trim();
       
       // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Tags for filtering ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -82,7 +84,8 @@ export const parseJobsHtml = (htmlContent) => {
       tags,
       applyLink,
       postedTime,
-      postedDateTime,
+      postedDateTime ,
+      formattedDate: format(parseISO(postedDateTime), 'MMM dd, yyyy HH:mm')
     };
 
     jobs.push(jobData);
@@ -90,6 +93,8 @@ export const parseJobsHtml = (htmlContent) => {
       console.error('Error parsing job:', error);
     }
   });
+
+  console.log('Total jobs parsed:', jobs);
 
   return jobs;
 };

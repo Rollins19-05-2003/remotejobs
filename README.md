@@ -84,7 +84,6 @@ A modern, responsive job listing platform built with Next.js that transforms leg
 ### Utilities
 - **Cheerio**: HTML parsing
 - **date-fns**: Date manipulation
-- **lodash**: Utility functions
 
 ## 🚀 Getting Started
 

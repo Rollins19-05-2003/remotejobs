@@ -39,6 +39,7 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({ onSearch }) => {
             type='text' 
             placeholder='Search by: Job title, Position, Keyword...' 
             className='flex-grow p-2 text-sm truncate'
+            value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyPress={handleKeyPress}
           />
@@ -53,6 +54,7 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({ onSearch }) => {
               type='text' 
               placeholder='City, state or country' 
               className='p-2 text-sm flex-grow lg:flex-grow-0'
+              value={locationQuery}
               onChange={(e) => setLocationQuery(e.target.value)}
               onKeyPress={handleKeyPress}
             />

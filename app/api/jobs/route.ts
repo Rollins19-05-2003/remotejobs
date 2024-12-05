@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     let jobs = parseJobsHtml(htmlContent);
     console.log("Parsed jobs:", jobs.length);
 
-    // Apply filters if query parameters exist
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Applying filters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     if (query || location) {
       jobs = jobs.filter((job) => {
         const searchString = `${job.title} ${job.company} ${job.tags.join(
@@ -32,6 +32,7 @@ export async function GET(request: NextRequest) {
         )} ${job.searchKeywords}`.toLowerCase();
         const locationString = job.location.toLowerCase();
 
+        console.log("Search string:", searchString);
         const matchesQuery =
           !query || searchString.includes(query.toLowerCase());
         const matchesLocation =
