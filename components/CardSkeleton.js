@@ -3,7 +3,7 @@ import React from 'react'
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Card skeleton ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 const CardSkeleton = () => {
   return (
-    <div className="w-80 h-44 bg-white shadow-sm rounded-lg border animate-pulse">
+    <div className="w-[20rem] md:w-[23rem] h-44 bg-white shadow-sm rounded-lg border animate-pulse gap-6">
       <div className="flex flex-col gap-4 p-6 justify-between">
         <div className="heading flex flex-col gap-2">
           <div className="h-6 bg-gray-200 rounded w-2/4"></div>
