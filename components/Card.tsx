@@ -78,7 +78,13 @@ const Card: React.FC<CardProps> = ({ job, showBookmarkedOnly = false }) => {
         <div className="company flex justify-between items-center">
           <div className="rounded-full flex gap-2">
             <div className='flex justify-center items-center'>
-              <Image src="/employersLogo.svg" alt="Employer Logo" width={40} height={40} />
+              {job.companyLogo ? (
+                <Image src={job.companyLogo} alt="Employer Logo" width={40} height={40} />
+              ) : (
+                <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                  <span className="text-gray-800 font-semibold">{getInitials(job.company)}</span>
+                </div>
+              )}
             </div>
             <div className='flex flex-col'>
               <p className="text-gray-800 font-semibold">{job.company}</p>
@@ -140,4 +146,13 @@ const formatLocation = (location: string | null | undefined): string => {
   }
   
   return location;
+};
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Getting initials of company name ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+const getInitials = (name: string): string => {
+  return name
+    .split(' ')
+    .map(word => word[0])
+    .join('')
+    .toUpperCase();
 };

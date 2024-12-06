@@ -1,13 +1,11 @@
 const cheerio = require('cheerio');
-const { format, parseISO } = require('date-fns');
-
 export const parseJobsHtml = (htmlContent) => {
   console.log('Parsing HTML content...');
   
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Cleaning HTML ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   const cleanHtml = htmlContent.trim();
   
-  console.log('Cleaned HTML Preview:', cleanHtml.substring(0, 500));
+  // console.log('Cleaned HTML Preview:', cleanHtml.substring(0, 500));
   
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Wrapping the content in a table and proper HTML structure ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   const wrappedHtml = `
@@ -43,24 +41,28 @@ export const parseJobsHtml = (htmlContent) => {
   
   jobElements.each((index, element) => {  
     const $job = $(element);
-    // console.log(`\nParsing job ${index + 1}:`);
+    console.log(`\nParsing job ${index + 1}:`);
 
     try {
       // console.log('Job element HTML:', $.html($job));
 
-      // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Logging each piece of data as we extract it ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Extract company logo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      const logoImg = $job.find('td.image.has-logo img.logo.lazyload');
+      const logoUrl = logoImg.attr('data-src') || null;
+      console.log('- Company Logo URL:', logoUrl);
+
       const jobId = $job.attr('data-id');
-      // console.log('- Job ID:', jobId);
+      console.log('- Job ID:', jobId);
       
       const title = $job.find('h2').text().trim();
-      // console.log('- Title:', title);
+      console.log('- Title:', title);
 
       const companyName = $job.find('span.companyLink h3').text().trim();
-      // console.log('- Company:', companyName);
+      console.log('- Company:', companyName);
 
       // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Location and salary with emoji cleanup ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
       const locationElements = $job.find('.location');
-      const location = $(locationElements[0]).text().trim();
+      const location = $(locationElements[0]).text().replace('', '').trim();
       const salary = $(locationElements[1]).text().replace('💰', '').trim();
       
       // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Tags for filtering ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -79,13 +81,13 @@ export const parseJobsHtml = (htmlContent) => {
       id: jobId,
       title,
       company: companyName,
+      companyLogo: logoUrl,
       location,
       salary,
       tags,
       applyLink,
       postedTime,
-      postedDateTime ,
-      formattedDate: format(parseISO(postedDateTime), 'MMM dd, yyyy HH:mm')
+      postedDateTime,
     };
 
     jobs.push(jobData);
@@ -93,8 +95,6 @@ export const parseJobsHtml = (htmlContent) => {
       console.error('Error parsing job:', error);
     }
   });
-
-  console.log('Total jobs parsed:', jobs);
 
   return jobs;
 };
