@@ -43,20 +43,20 @@ export const parseJobsHtml = (htmlContent) => {
   
   jobElements.each((index, element) => {  
     const $job = $(element);
-    console.log(`\nParsing job ${index + 1}:`);
+    // console.log(`\nParsing job ${index + 1}:`);
 
     try {
       // console.log('Job element HTML:', $.html($job));
 
       // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Logging each piece of data as we extract it ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
       const jobId = $job.attr('data-id');
-      console.log('- Job ID:', jobId);
+      // console.log('- Job ID:', jobId);
       
       const title = $job.find('h2').text().trim();
-      console.log('- Title:', title);
+      // console.log('- Title:', title);
 
       const companyName = $job.find('span.companyLink h3').text().trim();
-      console.log('- Company:', companyName);
+      // console.log('- Company:', companyName);
 
       // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Location and salary with emoji cleanup ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
       const locationElements = $job.find('.location');

@@ -27,12 +27,13 @@ export async function GET(request: NextRequest) {
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Applying filters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     if (query || location) {
       jobs = jobs.filter((job) => {
-        const searchString = `${job.title} ${job.company} ${job.tags.join(
+        const formattedSalary = job.salary ? job.salary.toLowerCase().replace(/[^0-9k\s-]/g, '') : '';
+        const searchString = `${job.title} ${job.company} ${formattedSalary} ${job.tags.join(
           " "
         )} ${job.searchKeywords}`.toLowerCase();
         const locationString = job.location.toLowerCase();
 
-        console.log("Search string:", searchString);
+        // console.log("---------",job);
         const matchesQuery =
           !query || searchString.includes(query.toLowerCase());
         const matchesLocation =
