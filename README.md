@@ -30,8 +30,6 @@ A modern, responsive job listing platform built with Next.js that transforms leg
 #### 3. State Management & Data Fetching
 - Implemented React Query for:
   - Efficient data fetching
-  - Automatic background refreshes
-  - Optimistic updates
   - Cache management
   - Infinite scroll pagination
   - Loading states handling
@@ -49,7 +47,6 @@ A modern, responsive job listing platform built with Next.js that transforms leg
 - Implemented using `react-infinite-scroll-component`
 - Seamless pagination with React Query
 - Maintains filter state during scrolling
-- Optimized performance with windowing
 
 ### Extended Features
 
@@ -112,7 +109,7 @@ The application is deployed on Vercel with the following configuration:
 1. Connect your GitHub repository to Vercel
 2. Deploy with automatic CI/CD
 
-Live Demo: [https://debjoblisting.vercel.app/](https://debjoblisting.vercel.app/)
+Live Demo: [https://debremotejobs.vercel.app/](https://debremotejobs.vercel.app/)
 
 ## 🏗 Frontend Architecture
 
